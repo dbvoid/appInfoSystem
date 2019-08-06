@@ -1,7 +1,8 @@
-package com.dbvoid.service;
+package com.dbvoid.service.developer;
 
 import com.dbvoid.dao.devuser.DevUserMapper;
 import com.dbvoid.pojo.DevUser;
+import com.dbvoid.service.developer.DevUserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
