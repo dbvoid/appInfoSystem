@@ -39,4 +39,20 @@ public interface AppInfoService {
      * @return
      */
     List<AppInfo> getAppInfoList(String querySoftwareName, Integer queryStatus, Integer queryCategoryLevel1, Integer queryCategoryLevel2, Integer queryCategoryLevel3, Integer queryFlatformId, Integer devId, Integer currentPageNo, int pageSize) throws Exception;
+
+    /**
+     * 新增app
+     * @param appInfo
+     * @return
+     * @throws Exception
+     */
+    public boolean add(AppInfo appInfo) throws Exception;
+
+    /**
+     * 根据id、apkName查找appInfo
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    public AppInfo getAppInfo(Integer id,String APKName)throws Exception;
 }

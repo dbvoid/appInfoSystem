@@ -27,4 +27,8 @@ public interface AppInfoMapper {
                                         @Param(value="devId")Integer devId,
                                         @Param(value="from")Integer currentPageNo,
                                         @Param(value="pageSize")Integer pageSize)throws Exception;
+
+    public int add(AppInfo appInfo) throws Exception;
+
+    public AppInfo getAppInfo(@Param(value="id")Integer id,@Param(value="APKName")String APKName)throws Exception;
 }

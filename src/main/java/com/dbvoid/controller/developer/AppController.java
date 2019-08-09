@@ -1,5 +1,6 @@
 package com.dbvoid.controller.developer;
 
+import com.alibaba.fastjson.JSONArray;
 import com.dbvoid.pojo.AppCategory;
 import com.dbvoid.pojo.AppInfo;
 import com.dbvoid.pojo.DataDictionary;
@@ -9,15 +10,19 @@ import com.dbvoid.service.developer.AppInfoService;
 import com.dbvoid.service.developer.DataDictionaryService;
 import com.dbvoid.utils.Constants;
 import com.dbvoid.utils.PageSupport;
+import com.mysql.jdbc.StringUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -144,6 +149,18 @@ public class AppController {
         return "developer/appinfolist";
     }
 
+
+    /**
+     * 根据typeCode查询出相应的数据字典列表
+     * @param pid
+     * @return
+     */
+    @RequestMapping(value="/datadictionarylist.json",method=RequestMethod.GET)
+    @ResponseBody
+    public List<DataDictionary> getDataDicList (@RequestParam String tcode){
+        return this.getDataDictionaryList(tcode);
+    }
+
     /**
      * 根据parentId查询出相应的分类级别列表
      * @param pid
@@ -176,5 +193,93 @@ public class AppController {
             e.printStackTrace();
         }
         return categoryLevelList;
+    }
+
+    /**
+     * 增加app信息（跳转到新增appinfoadd页面）
+     * @param appInfo
+     * @return
+     */
+    @GetMapping("/appinfoadd")
+    public String add(@ModelAttribute("appInfo") AppInfo appInfo){
+        return "developer/appinfoadd";
+    }
+
+    @PostMapping("/appinfoaddsave")
+    public String addSave(AppInfo appInfo, HttpSession session, HttpServletRequest request,@RequestParam(value = "a_logoPicPath",required = false) MultipartFile attach){
+        String logoPicPath =  null;
+        String logoLocPath =  null;
+        if(!attach.isEmpty()){
+            String path = request.getSession().getServletContext().getRealPath("statics"+java.io.File.separator+"uploadfiles");
+            String oldFileName = attach.getOriginalFilename();//原文件名
+            String prefix = FilenameUtils.getExtension(oldFileName);//原文件后缀
+            int filesize = 500000;
+            if(attach.getSize() > filesize){//上传大小不得超过 50k
+                request.setAttribute("fileUploadError", Constants.FILEUPLOAD_ERROR_4);
+                return "developer/appinfoadd";
+            }else if(prefix.equalsIgnoreCase("jpg") || prefix.equalsIgnoreCase("png")
+                    ||prefix.equalsIgnoreCase("jepg") || prefix.equalsIgnoreCase("pneg")){//上传图片格式
+                String fileName = appInfo.getAPKName() + ".jpg";//上传LOGO图片命名:apk名称.apk
+                File targetFile = new File(path,fileName);
+                if(!targetFile.exists()){
+                    targetFile.mkdirs();
+                }
+                try {
+                    attach.transferTo(targetFile);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    request.setAttribute("fileUploadError", Constants.FILEUPLOAD_ERROR_2);
+                    return "developer/appinfoadd";
+                }
+                logoPicPath = request.getContextPath()+"/statics/uploadfiles/"+fileName;
+                logoLocPath = path+ File.separator+fileName;
+            }else{
+                request.setAttribute("fileUploadError", Constants.FILEUPLOAD_ERROR_3);
+                return "developer/appinfoadd";
+            }
+        }
+        appInfo.setCreatedBy(((DevUser)session.getAttribute(Constants.DEV_USER_SESSION)).getId());
+        appInfo.setCreationDate(new Date());
+        appInfo.setLogoPicPath(logoPicPath);
+        appInfo.setLogoLocPath(logoLocPath);
+        appInfo.setDevId(((DevUser)session.getAttribute(Constants.DEV_USER_SESSION)).getId());
+        appInfo.setStatus(1);
+        try {
+            if(appInfoService.add(appInfo)){
+                return "redirect:/dev/flatform/app/list";
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return "developer/appinfoadd";
+    }
+
+    /**
+     * 判断APKName是否唯一
+     * @param apkName
+     * @return
+     */
+    @RequestMapping(value="/apkexist.json",method=RequestMethod.GET)
+    @ResponseBody
+    public Object apkNameIsExit(@RequestParam String APKName){
+        HashMap<String, String> resultMap = new HashMap<String, String>();
+        if(StringUtils.isNullOrEmpty(APKName)){
+            resultMap.put("APKName", "empty");
+        }else{
+            AppInfo appInfo = null;
+            try {
+                appInfo = appInfoService.getAppInfo(null, APKName);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            if(null != appInfo)
+                resultMap.put("APKName", "exist");
+            else
+                resultMap.put("APKName", "noexist");
+        }
+        return JSONArray.toJSONString(resultMap);
     }
 }
