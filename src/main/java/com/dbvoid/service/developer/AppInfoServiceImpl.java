@@ -44,4 +44,24 @@ public class AppInfoServiceImpl implements AppInfoService {
     public AppInfo getAppInfo(Integer id, String APKName) throws Exception {
         return appInfoMapper.getAppInfo(id,APKName);
     }
+
+    @Override
+    public boolean modify(AppInfo appInfo) throws Exception {
+        // TODO Auto-generated method stub
+        boolean flag = false;
+        if(appInfoMapper.modify(appInfo) > 0){
+            flag = true;
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteAppLogo(Integer id) throws Exception {
+        // TODO Auto-generated method stub
+        boolean flag = false;
+        if(appInfoMapper.deleteAppLogo(id) > 0){
+            flag = true;
+        }
+        return flag;
+    }
 }

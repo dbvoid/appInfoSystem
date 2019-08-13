@@ -55,4 +55,20 @@ public interface AppInfoService {
      * @throws Exception
      */
     public AppInfo getAppInfo(Integer id,String APKName)throws Exception;
+
+    /**
+     * 修改app信息
+     * @param appInfo
+     * @return
+     * @throws Exception
+     */
+    public boolean modify(AppInfo appInfo)throws Exception;
+
+    /**
+     * 删除logo图片
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    public boolean deleteAppLogo(Integer id)throws Exception;
 }
