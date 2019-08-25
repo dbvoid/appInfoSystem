@@ -147,4 +147,8 @@
 			set status=#{status}
 			where id = #{id}
 	</update>
+
+    <delete id="deleteAppInfoById" parameterType="Integer">
+		delete from app_info where id = #{id}
+	</delete>
 </mapper>

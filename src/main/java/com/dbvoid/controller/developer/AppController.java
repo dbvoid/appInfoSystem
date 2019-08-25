@@ -1,10 +1,7 @@
 package com.dbvoid.controller.developer;
 
 import com.alibaba.fastjson.JSONArray;
-import com.dbvoid.pojo.AppCategory;
-import com.dbvoid.pojo.AppInfo;
-import com.dbvoid.pojo.DataDictionary;
-import com.dbvoid.pojo.DevUser;
+import com.dbvoid.pojo.*;
 import com.dbvoid.service.developer.AppCategoryService;
 import com.dbvoid.service.developer.AppInfoService;
 import com.dbvoid.service.developer.AppVersionService;
@@ -427,4 +424,290 @@ public class AppController {
         }
         return "developer/appinfomodify";
     }
+
+    /**
+     * 增加appversion信息（跳转到新增app版本页面）
+     * @param appInfo
+     * @return
+     */
+    @RequestMapping(value="/appversionadd",method=RequestMethod.GET)
+    public String addVersion(@RequestParam(value="id")String appId,
+                             @RequestParam(value="error",required= false)String fileUploadError,
+                             AppVersion appVersion, Model model){
+        if(null != fileUploadError && fileUploadError.equals("error1")){
+            fileUploadError = Constants.FILEUPLOAD_ERROR_1;
+        }else if(null != fileUploadError && fileUploadError.equals("error2")){
+            fileUploadError	= Constants.FILEUPLOAD_ERROR_2;
+        }else if(null != fileUploadError && fileUploadError.equals("error3")){
+            fileUploadError = Constants.FILEUPLOAD_ERROR_3;
+        }
+        appVersion.setAppId(Integer.parseInt(appId));
+        List<AppVersion> appVersionList = null;
+        try {
+            appVersionList = appVersionService.getAppVersionList(Integer.parseInt(appId));
+            appVersion.setAppName((appInfoService.getAppInfo(Integer.parseInt(appId),null)).getSoftwareName());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        model.addAttribute("appVersionList", appVersionList);
+        model.addAttribute(appVersion);
+        model.addAttribute("fileUploadError",fileUploadError);
+        return "developer/appversionadd";
+    }
+
+    /**
+     * 保存新增appversion数据（子表）-上传该版本的apk包
+     * @param appInfo
+     * @param appVersion
+     * @param session
+     * @param request
+     * @param attach
+     * @return
+     */
+    @RequestMapping(value="/addversionsave",method=RequestMethod.POST)
+    public String addVersionSave(AppVersion appVersion,HttpSession session,HttpServletRequest request,
+                                 @RequestParam(value="a_downloadLink",required= false) MultipartFile attach ){
+        String downloadLink =  null;
+        String apkLocPath = null;
+        String apkFileName = null;
+        if(!attach.isEmpty()){
+            String path = request.getSession().getServletContext().getRealPath("statics"+File.separator+"uploadfiles");
+            String oldFileName = attach.getOriginalFilename();//原文件名
+            String prefix = FilenameUtils.getExtension(oldFileName);//原文件后缀
+            if(prefix.equalsIgnoreCase("apk")){//apk文件命名：apk名称+版本号+.apk
+                String apkName = null;
+                try {
+                    apkName = appInfoService.getAppInfo(appVersion.getAppId(),null).getAPKName();
+                } catch (Exception e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                if(apkName == null || "".equals(apkName)){
+                    return "redirect:/dev/flatform/app/appversionadd?id="+appVersion.getAppId()
+                            +"&error=error1";
+                }
+                apkFileName = apkName + "-" +appVersion.getVersionNo() + ".apk";
+                File targetFile = new File(path,apkFileName);
+                if(!targetFile.exists()){
+                    targetFile.mkdirs();
+                }
+                try {
+                    attach.transferTo(targetFile);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return "redirect:/dev/flatform/app/appversionadd?id="+appVersion.getAppId()
+                            +"&error=error2";
+                }
+                downloadLink = request.getContextPath()+"/statics/uploadfiles/"+apkFileName;
+                apkLocPath = path+File.separator+apkFileName;
+            }else{
+                return "redirect:/dev/flatform/app/appversionadd?id="+appVersion.getAppId()
+                        +"&error=error3";
+            }
+        }
+        appVersion.setCreatedBy(((DevUser)session.getAttribute(Constants.DEV_USER_SESSION)).getId());
+        appVersion.setCreationDate(new Date());
+        appVersion.setDownloadLink(downloadLink);
+        appVersion.setApkLocPath(apkLocPath);
+        appVersion.setApkFileName(apkFileName);
+        try {
+            if(appVersionService.appsysadd(appVersion)){
+                return "redirect:/dev/flatform/app/list";
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return "redirect:/dev/flatform/app/appversionadd?id="+appVersion.getAppId();
+    }
+
+    @RequestMapping(value="/{appid}/sale",method=RequestMethod.PUT)
+    @ResponseBody
+    public Object sale(@PathVariable String appid,HttpSession session){
+        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+        Integer appIdInteger = 0;
+        try{
+            appIdInteger = Integer.parseInt(appid);
+        }catch(Exception e){
+            appIdInteger = 0;
+        }
+        resultMap.put("errorCode", "0");
+        resultMap.put("appId", appid);
+        if(appIdInteger>0){
+            try {
+                DevUser devUser = (DevUser)session.getAttribute(Constants.DEV_USER_SESSION);
+                AppInfo appInfo = new AppInfo();
+                appInfo.setId(appIdInteger);
+                appInfo.setModifyBy(devUser.getId());
+                if(appInfoService.appsysUpdateSaleStatusByAppId(appInfo)){
+                    resultMap.put("resultMsg", "success");
+                }else{
+                    resultMap.put("resultMsg", "success");
+                }
+            } catch (Exception e) {
+                resultMap.put("errorCode", "exception000001");
+            }
+        }else{
+            //errorCode:0为正常
+            resultMap.put("errorCode", "param000001");
+        }
+
+        return resultMap;
+    }
+
+    /**
+     * 修改最新的appVersion信息（跳转到修改appVersion页面）
+     * @param versionId
+     * @param appId
+     * @param model
+     * @return
+     */
+    @RequestMapping(value="/appversionmodify",method=RequestMethod.GET)
+    public String modifyAppVersion(@RequestParam("vid") String versionId,
+                                   @RequestParam("aid") String appId,
+                                   @RequestParam(value="error",required= false)String fileUploadError,
+                                   Model model){
+        AppVersion appVersion = null;
+        List<AppVersion> appVersionList = null;
+        if(null != fileUploadError && fileUploadError.equals("error1")){
+            fileUploadError = Constants.FILEUPLOAD_ERROR_1;
+        }else if(null != fileUploadError && fileUploadError.equals("error2")){
+            fileUploadError	= Constants.FILEUPLOAD_ERROR_2;
+        }else if(null != fileUploadError && fileUploadError.equals("error3")){
+            fileUploadError = Constants.FILEUPLOAD_ERROR_3;
+        }
+        try {
+            appVersion = appVersionService.getAppVersionById(Integer.parseInt(versionId));
+            appVersionList = appVersionService.getAppVersionList(Integer.parseInt(appId));
+        }catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        model.addAttribute(appVersion);
+        model.addAttribute("appVersionList",appVersionList);
+        model.addAttribute("fileUploadError",fileUploadError);
+        return "developer/appversionmodify";
+    }
+
+    /**
+     * 保存修改后的appVersion
+     * @param appVersion
+     * @param session
+     * @return
+     */
+    @RequestMapping(value="/appversionmodifysave",method=RequestMethod.POST)
+    public String modifyAppVersionSave(AppVersion appVersion,HttpSession session,HttpServletRequest request,
+                                       @RequestParam(value="attach",required= false) MultipartFile attach){
+
+        String downloadLink =  null;
+        String apkLocPath = null;
+        String apkFileName = null;
+        if(!attach.isEmpty()){
+            String path = request.getSession().getServletContext().getRealPath("statics"+File.separator+"uploadfiles");
+            String oldFileName = attach.getOriginalFilename();//原文件名
+            String prefix = FilenameUtils.getExtension(oldFileName);//原文件后缀
+            if(prefix.equalsIgnoreCase("apk")){//apk文件命名：apk名称+版本号+.apk
+                String apkName = null;
+                try {
+                    apkName = appInfoService.getAppInfo(appVersion.getAppId(),null).getAPKName();
+                } catch (Exception e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                if(apkName == null || "".equals(apkName)){
+                    return "redirect:/dev/flatform/app/appversionmodify?vid="+appVersion.getId()
+                            +"&aid="+appVersion.getAppId()
+                            +"&error=error1";
+                }
+                apkFileName = apkName + "-" +appVersion.getVersionNo() + ".apk";
+                File targetFile = new File(path,apkFileName);
+                if(!targetFile.exists()){
+                    targetFile.mkdirs();
+                }
+                try {
+                    attach.transferTo(targetFile);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return "redirect:/dev/flatform/app/appversionmodify?vid="+appVersion.getId()
+                            +"&aid="+appVersion.getAppId()
+                            +"&error=error2";
+                }
+                downloadLink = request.getContextPath()+"/statics/uploadfiles/"+apkFileName;
+                apkLocPath = path+File.separator+apkFileName;
+            }else{
+                return "redirect:/dev/flatform/app/appversionmodify?vid="+appVersion.getId()
+                        +"&aid="+appVersion.getAppId()
+                        +"&error=error3";
+            }
+        }
+        appVersion.setModifyBy(((DevUser)session.getAttribute(Constants.DEV_USER_SESSION)).getId());
+        appVersion.setModifyDate(new Date());
+        appVersion.setDownloadLink(downloadLink);
+        appVersion.setApkLocPath(apkLocPath);
+        appVersion.setApkFileName(apkFileName);
+        try {
+            if(appVersionService.modify(appVersion)){
+                return "redirect:/dev/flatform/app/list";
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return "developer/appversionmodify";
+    }
+
+    /**
+     * 查看app信息，包括app基本信息和版本信息列表（跳转到查看页面）
+     * @param appInfo
+     * @return
+     */
+    @RequestMapping(value="/appview/{id}",method=RequestMethod.GET)
+    public String view(@PathVariable String id,Model model){
+        AppInfo appInfo = null;
+        List<AppVersion> appVersionList = null;
+        try {
+            appInfo = appInfoService.getAppInfo(Integer.parseInt(id),null);
+            appVersionList = appVersionService.getAppVersionList(Integer.parseInt(id));
+        }catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        model.addAttribute("appVersionList", appVersionList);
+        model.addAttribute(appInfo);
+        return "developer/appinfoview";
+    }
+
+    /**
+     * 删除软件
+     * @param id
+     * @return
+     */
+    @RequestMapping(value="/delapp.json")
+    @ResponseBody
+    public Object delApp(@RequestParam String id){
+        HashMap<String, String> resultMap = new HashMap<String, String>();
+        if(StringUtils.isNullOrEmpty(id)){
+            resultMap.put("delResult", "notexist");
+        }else{
+            try {
+                if(appInfoService.appsysdeleteAppById(Integer.parseInt(id)))
+                    resultMap.put("delResult", "true");
+                else
+                    resultMap.put("delResult", "false");
+            } catch (NumberFormatException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return JSONArray.toJSONString(resultMap);
+    }
 }
+
+
+

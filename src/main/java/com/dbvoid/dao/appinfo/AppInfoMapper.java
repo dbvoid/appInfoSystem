@@ -61,4 +61,12 @@ public interface AppInfoMapper {
      * @throws Exception
      */
     public int updateSatus(@Param(value="status")Integer status,@Param(value="id")Integer id)throws Exception;
+
+    /**
+     * 删除app信息
+     * @param delId
+     * @return
+     * @throws Exception
+     */
+    public int deleteAppInfoById(@Param(value="id")Integer delId)throws Exception;
 }

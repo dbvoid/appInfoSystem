@@ -71,4 +71,21 @@ public interface AppInfoService {
      * @throws Exception
      */
     public boolean deleteAppLogo(Integer id)throws Exception;
+
+
+    /**
+     * update Sale Status By AppId and Operator
+     * @param appId
+     * @return
+     * @throws Exception
+     */
+    public boolean appsysUpdateSaleStatusByAppId(AppInfo appInfo) throws Exception;
+
+    /**
+     * 通过appId删除app应用(app_info、app_version)
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    public boolean appsysdeleteAppById(Integer id)throws Exception;
 }

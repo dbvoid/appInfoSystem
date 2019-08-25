@@ -11,7 +11,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>APP开发者平台</title>
+<title>应用商店开发者平台</title>
 
 	<!-- Bootstrap -->
 	<link href="${pageContext.request.contextPath }/statics/css/bootstrap.min.css" rel="stylesheet">
@@ -39,8 +39,8 @@
 			<div class="col-md-3 left_col menu_fixed">
 				<div class="left_col scroll-view">
 					<div class="navbar nav_title" style="border: 0;">
-						<a href="${pageContext.request.contextPath }/dev/flatform/main" class="site_title"><i class="fa fa-paw"></i> <span>APP
-								BMS</span>
+						<a href="${pageContext.request.contextPath }/dev/flatform/main" class="site_title"><i class="fa fa-paw"></i> <span>
+								应用商店管理</span>
 						</a>
 					</div>
 
@@ -68,20 +68,20 @@
 						<div class="menu_section">
 							<h3>${devUserSession.devName }</h3>
 							<ul class="nav side-menu">
-								<li><a><i class="fa fa-home"></i> APP账户管理 <span
+								<li><a><i class="fa fa-home"></i> 软件账户管理 <span
 										class="fa fa-chevron-down"></span>
 								</a>
 									<ul class="nav child_menu">
-										<li><a href="javascript:;">APP开发者账户申请</a>
+										<li><a href="javascript:;">软件开发者账户申请</a>
 										</li>
 										<li><a href="javascript:;">个人账户信息维护</a>
 										</li>
 									</ul></li>
-								<li><a><i class="fa fa-edit"></i> APP应用管理<span
+								<li><a><i class="fa fa-edit"></i> 软件管理<span
 										class="fa fa-chevron-down"></span>
 								</a>
 									<ul class="nav child_menu">
-										<li><a href="${pageContext.request.contextPath }/dev/flatform/app/list">APP维护</a>
+										<li><a href="${pageContext.request.contextPath }/dev/flatform/app/list">软件维护</a>
 										</li>
 									</ul></li>
 							</ul>
