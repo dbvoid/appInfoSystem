@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dbvoid.dao.backenduser.BackendUserMapper">
+    <select id="getLoginUser" resultType="BackendUser">
+      SELECT
+        u.*,
+        d.valueName AS userTypeName
+        FROM
+        backend_user u
+        JOIN
+        data_dictionary d
+        ON
+        u.userType = d.valueId
+        WHERE d.typeCode = 'USER_TYPE'
+        <if test="userCode != null and userCode !=''">
+          and userCode = #{userCode}
+        </if>
+    </select>
+</mapper>

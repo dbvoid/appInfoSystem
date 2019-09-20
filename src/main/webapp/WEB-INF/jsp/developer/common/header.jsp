@@ -68,15 +68,6 @@
 						<div class="menu_section">
 							<h3>${devUserSession.devName }</h3>
 							<ul class="nav side-menu">
-								<li><a><i class="fa fa-home"></i> 软件账户管理 <span
-										class="fa fa-chevron-down"></span>
-								</a>
-									<ul class="nav child_menu">
-										<li><a href="javascript:;">软件开发者账户申请</a>
-										</li>
-										<li><a href="javascript:;">个人账户信息维护</a>
-										</li>
-									</ul></li>
 								<li><a><i class="fa fa-edit"></i> 软件管理<span
 										class="fa fa-chevron-down"></span>
 								</a>

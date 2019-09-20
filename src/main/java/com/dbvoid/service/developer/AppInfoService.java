@@ -25,6 +25,7 @@ public interface AppInfoService {
                                Integer queryCategoryLevel1,Integer queryCategoryLevel2,
                                Integer queryCategoryLevel3,Integer queryFlatformId,Integer devId)throws Exception;
 
+
     /**
      * 根据条件查询出app列表
      * @param querySoftwareName
