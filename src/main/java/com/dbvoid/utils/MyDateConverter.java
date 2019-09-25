@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * @ClassName: MyDateConverter
  * @Description: 日期转换器
- * @Author: dbvoid
+ * @Author: layingkun
  */
 public class MyDateConverter implements Converter<String, Date> {
     @Nullable

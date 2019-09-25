@@ -2,8 +2,8 @@ package com.dbvoid.utils;
 
 /**
  * 分页工具类
- * @author DBVoid
- * @date 2019/8/5 - 11:29
+ * @author layingkun
+ * @date 2019/9/5 - 11:29
  */
 public class PageSupport {
     //当前页码-来自于用户输入

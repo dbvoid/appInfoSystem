@@ -1,8 +1,8 @@
 package com.dbvoid.utils;
 
 /**
- * @author DBVoid
- * @date 2019/8/5 - 11:28
+ * @author layingkun
+ * @date 2019/9/5 - 11:28
  */
 public class Constants {
     public final static String USER_SESSION = "userSession";

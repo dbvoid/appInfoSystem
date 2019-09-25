@@ -3,8 +3,8 @@ package com.dbvoid.service.developer;
 import com.dbvoid.pojo.DevUser;
 
 /**
- * @author DBVoid
- * @date 2019/8/5 - 14:20
+ * @author layingkun
+ * @date 2019/9/5 - 14:20
  */
 
 public interface DevUserService {

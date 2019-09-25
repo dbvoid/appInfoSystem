@@ -6,8 +6,8 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * @author DBVoid
- * @date 2019/8/6 - 21:05
+ * @author layingkun
+ * @date 2019/9/6 - 21:05
  */
 public interface AppInfoMapper {
     public int getAppInfoCount(@Param(value="softwareName")String querySoftwareName,

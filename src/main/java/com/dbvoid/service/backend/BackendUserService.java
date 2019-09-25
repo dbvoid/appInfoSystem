@@ -3,7 +3,7 @@ package com.dbvoid.service.backend;
 import com.dbvoid.pojo.BackendUser;
 
 /**
- * @author DBVoid
+ * @author layingkun
  * @date 2019/9/20 - 15:19
  */
 public interface BackendUserService {

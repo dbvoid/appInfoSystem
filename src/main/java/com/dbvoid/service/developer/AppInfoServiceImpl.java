@@ -12,8 +12,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author DBVoid
- * @date 2019/8/6 - 21:03
+ * @author layingkun
+ * @date 2019/9/6 - 21:03
  */
 @Service
 public class AppInfoServiceImpl implements AppInfoService {

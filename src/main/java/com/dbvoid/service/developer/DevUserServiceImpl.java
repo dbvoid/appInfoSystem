@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 /**
- * @author DBVoid
- * @date 2019/8/5 - 14:20
+ * @author layingkun
+ * @date 2019/9/5 - 14:20
  */
 @Service
 public class DevUserServiceImpl implements DevUserService {

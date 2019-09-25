@@ -5,8 +5,8 @@ import com.dbvoid.pojo.AppInfo;
 import java.util.List;
 
 /**
- * @author DBVoid
- * @date 2019/8/6 - 21:01
+ * @author layingkun
+ * @date 2019/9/6 - 21:01
  */
 public interface AppInfoService {
     /**

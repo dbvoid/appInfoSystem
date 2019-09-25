@@ -3,8 +3,8 @@ package com.dbvoid.utils;
 import java.math.BigDecimal;
 
 /**
- * @author DBVoid
- * @date 2019/8/5 - 11:27
+ * @author layingkun
+ * @date 2019/9/5 - 11:27
  */
 public class BigDecimalUtil {
     /**
